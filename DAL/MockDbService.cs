@@ -20,13 +20,18 @@ namespace lesson4.DAL
         }
 
 
-        public IEnumerable<Student> GetStudents()
+        public IEnumerable<Student> GetStudents(string id)
         {
+            //string id = "s1234";
+            List<Student> res = new List<Student>();
             using (var con = new SqlConnection("Data Source=db-mssql;Initial Catalog=s19135;Integrated Security=True"))
             using (var com = new SqlCommand())
             {
                 com.Connection = con;
-                com.CommandText = "Select * From Student";
+                com.CommandText = "SELECT Semester FROM Student, Enrollment" +
+                                  "WHERE Enrollment.IdEnrollment = Student.IdEnrollment " +
+                                  "AND IndexNumber = @id";
+                com.Parameters.AddWithValue("id", id);
 
                 con.Open();
                 var dr = com.ExecuteReader();
@@ -36,10 +41,16 @@ namespace lesson4.DAL
                     st.FirstName = dr["FirstName"].ToString();
                     st.IndexNumber = dr["IndexNumber"].ToString();
                     st.LastName = dr["LastName"].ToString();
+                    res.Add(st);
                 }
 
                 return null;
             }
+        }
+
+        public IEnumerable<Student> GetStudents()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }
